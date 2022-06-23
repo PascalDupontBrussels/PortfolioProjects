@@ -1,0 +1,189 @@
+                                                 Power BI project Sales_part_1 PDF_Details
+Page_1:
+Base_Measures
+
+Table chart one _ Order table (Category)
+Measures:
+
+TotalSales =
+SUMX(Ordertbl,Ordertbl[SellingPrice]*Ordertbl[Amount])
+TotalCost = 
+SUMX(Ordertbl,Ordertbl[PurchasingPrice]*Ordertbl[Amount])
+TotalProfit =
+[TotalSales]-[TotalCost]
+ProfitMargin =
+DIVIDE([TotalProfit],[TotalSales],"notspecified")
+
+Table chart two _ Date table (Fiscal Year)
+Measures:
+
+Same as chart one by Fiscal Year
+
+--------------------------------------------------------------------------------------------------
+Page_2:
+Date_Cumulative_Sales
+
+Table chart one _ Date table (Year, Month)
+Measures:
+TotalSales =
+SUMX(Ordertbl,Ordertbl[SellingPrice]*Ordertbl[Amount])
+
+Previous month Cumulative Sales:
+CumSales = 
+CALCULATE([TotalSales],
+FILTER(ALLSELECTED(Datestbl[Date]),
+Datestbl[Date]<= MAX(Datestbl[Date])))
+
+Year to Date Sales:
+Same as Previous month Cumulative Sales but restart each year:
+YTDSales = 
+IF(HASONEVALUE(Datestbl[Year]),
+TOTALYTD([TotalSales],Datestbl[Date]), BLANK())
+
+Quarter to Date Sales:
+Same as Previous month Cumulative Sales but restart each Quarter:
+QTDSales = 
+TOTALQTD([TotalSales],Datestbl[Date])
+
+Table chart two _ Date table (Date)
+Measures:
+
+TotalSales = 
+SUMX(Ordertbl,Ordertbl[SellingPrice]*Ordertbl[Amount])
+Month to Date Sales:
+Same as Previous month Cumulative Sales but restart each Month:
+MTDSales = 
+TOTALMTD([TotalSales],Datestbl[Date])
+
+--------------------------------------------------------------------------------------------------
+Page_3:
+Date_Previous_Sales
+
+Table chart one _ Date table (Year, Month)
+Measures:
+
+TotalSales =
+SUMX(Ordertbl,Ordertbl[SellingPrice]*Ordertbl[Amount])
+
+Total Sales per month, one month back:
+TotalSalesPM = 
+CALCULATE([TotalSales],PREVIOUSMONTH(Datestbl[Date]))
+
+Total Sales per Quarter, one Quater back:
+TotalSalesPQ = 
+CALCULATE([TotalSales],PREVIOUSQUARTER(Datestbl[Date]))
+
+Same as Previous month Cumulative Sales but restart each year:
+(Year to Date Sales here is just information for TotalSalesPY)
+YTDSales = 
+IF(HASONEVALUE(Datestbl[Year]),
+TOTALYTD([TotalSales],Datestbl[Date]), BLANK())
+
+Total Sales per Year, one Year back:
+TotalSalesPY = 
+CALCULATE([TotalSales],PREVIOUSYEAR(Datestbl[Date]))
+
+Table chart two _ Date table (Year)
+Measures:
+
+Same as Chart one by Year.
+
+--------------------------------------------------------------------------------------------------
+Page_4:
+First And Last Day Sales
+
+Table chart one _ Date table (Date)
+Measures:
+
+TotalSales =
+SUMX(Ordertbl,Ordertbl[SellingPrice]*Ordertbl[Amount])
+
+Table chart two _ Date table (Year, Month)
+Measures:
+
+First day and Last day of Sales:
+FirstDaySales = 
+CALCULATE([TotalSales],FIRSTDATE(Ordertbl[OrderDate]))
+
+LastDaySales = 
+CALCULATE([TotalSales],LASTDATE(Ordertbl[OrderDate]))
+
+Sales between First and Last day Sales:
+A:
+SalesBetweenFaL = 
+[TotalSales]-[FirstDaySales]-[LastDaySales]
+
+B:
+SalesBetwwenFaL2 = 
+CALCULATE([TotalSales],
+DATESBETWEEN(Datestbl[Date],
+FIRSTDATE(Ordertbl[OrderDate])+1,
+LASTDATE(Ordertbl[OrderDate])-1))
+
+--------------------------------------------------------------------------------------------------
+Page_5:
+ALL_vs_ALL Selected
+
+Table chart _ Order table (Category)
+Measures:
+
+TotalSales =
+SUMX(Ordertbl,Ordertbl[SellingPrice]*Ordertbl[Amount])
+
+ALLTotalSales = 
+CALCULATE([TotalSales],ALL(Ordertbl[Category]))
+
+Selected category sales percentage:
+Category%Sales = 
+DIVIDE([TotalSales],[ALLTotalSales])
+
+Total Sales of All selected:
+Category%ALLSELECTEDSales = 
+DIVIDE([TotalSales],[ALLSelectedTotalSales])
+
+All selected category sales percentage:
+Category%ALLSELECTEDSales = 
+DIVIDE([TotalSales],[ALLSelectedTotalSales])
+
+Slicer chart
+
+Order table (Category)
+--------------------------------------------------------------------------------------------------
+
+Page_6:
+Best Selling Day
+
+Table chart one Order table (Category)
+Measures:
+
+TotalSales = 
+SUMX(Ordertbl,Ordertbl[SellingPrice]*Ordertbl[Amount])
+
+SalesRanking = 
+IF(ISINSCOPE(Ordertbl[Category]),
+RANKX(ALL(Ordertbl[Category]),[TotalSales],,DESC),
+BLANK())
+
+Table chart two Order table (Category)
+Measures:
+
+Day of Week Name:
+Date table (DayOfWeekName)
+AverageSales =
+AVERAGEX(Datestbl,[TotalSales])
+
+Table chart three Order table (Category)
+Measures:
+
+Top Sales:
+TopxSales =
+IF([SalesRanking]<=TopSalesRank[TopSalesRank Value],[TotalSales],BLANK())
+
+Slicer Chart (What if Parameter)
+1: TopSalesRank =
+GENERATESERIES(1, 8, 1)
+2: TopSalesRank Value =
+SELECTEDVALUE('TopSalesRank'[TopSalesRank])
+
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
