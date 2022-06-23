@@ -1,0 +1,323 @@
+                                                    Power BI project Sales_part_2 PDF_Details
+                                                    
+Page_1:
+Between_Top5_Bottom5
+
+Table chart one _ Order table (CustomerCompany)
+Measures:
+
+Top5Customers = 
+CALCULATE([TotalSales],
+FILTER(VALUES(OrdersTbl[CustomerCompany]),
+RANKX(ALL(OrdersTbl[CustomerCompany]),
+[TotalSales],,DESC)<=5))
+
+
+Table chart two _ Order table (CustomerCompany)
+Measures:
+
+Bottom5Customers = 
+CALCULATE([TotalSales],
+FILTER(VALUES(OrdersTbl[CustomerCompany]),
+RANKX(ALL(OrdersTbl[CustomerCompany]),
+[TotalSales],,ASC)<=5))
+
+
+Table chart three _ Order table (ProductName)
+Measures:
+
+Top5Products = 
+CALCULATE([TotalSales],
+FILTER(VALUES(OrdersTbl[ProductName]),
+RANKX(ALL(OrdersTbl[ProductName]),
+[TotalSales],,DESC)<=5))
+
+Table chart four   Order table (ProductName)
+Measures:
+
+Bottom5Products = 
+CALCULATE([TotalSales],
+FILTER(VALUES(OrdersTbl[ProductName]),
+RANKX(ALL(OrdersTbl[ProductName]),
+[TotalSales],,ASC)<=5))
+
+Slicer Chart one (What if Parameter)
+Bottom =
+GENERATESERIES(0, 100000, 1000)
+Bottom Value =
+SELECTEDVALUE('Bottom'[Bottom])
+Slicer Chart one and two (What if Parameter)
+Top =
+GENERATESERIES(0, 200000, 1000)
+Top Value =
+SELECTEDVALUE('Top'[Top], 50000)
+
+Table chart five_ Order table (ProductName)
+Measures:
+
+ProductWithSalesBetween = 
+CALCULATE([TotalSales],FILTER(VALUES(OrdersTbl[ProductName]),[TotalSales]>=Bottom[Bottom Value]
+&& [TotalSales]<='Top'[Top Value]))
+
+--------------------------------------------------------------------------------------------------
+
+Page_2:
+Bump chart 
+
+Matrix chart  _  Order table (Category)
+Date table (Date, Year, Qurter, Month, Day)
+Measures:
+
+SumSales = 
+SUMX(OrdersTbl,OrdersTbl[Sales])
+
+Bump chart  _  Order table (Category)
+Date table (Date, Year, Qurter, Month, Day)
+Order table (Category)
+Measures:
+
+Ranking = 
+RANKX(ALLSELECTED(OrdersTbl[Category]),[SumSales])*-1
+
+
+--------------------------------------------------------------------------------------------------
+Page_3:
+Scenario Analysis
+
+Slicer chart one _(What if Parameter)
+PriceChange =
+GENERATESERIES(0, 1.05, 0.05)
+PriceChange Value =
+SELECTEDVALUE('PriceChange'[PriceChange])
+
+Slicer chart two _(What if Parameter)
+DemandChange =
+GENERATESERIES(-0.5, 0.5, 0.05)
+DemandChange Value =
+SELECTEDVALUE('DemandChange'[DemandChange])
+
+Clustered Column chart   Order table (Category)
+Measures:
+
+TotalSales =
+SUMX(OrdersTbl,OrdersTbl[Amount]*OrdersTbl[SellingPrice])
+
+ScenarioSales = 
+SUMX(OrdersTbl,OrdersTbl[Amount]
+*(1+DemandChange[DemandChange Value])
+*OrdersTbl[SellingPrice]*
+(1+PriceChange[PriceChange Value]))
+
+
+
+
+
+--------------------------------------------------------------------------------------------------
+Page_4:
+Variable Week_end_days
+
+Clustered Column chart one  
+Measures:
+
+TotalSalesOnWeekdays = 
+VAR Weekdays =
+FILTER(DateTbl,
+AND(DateTbl[DayOfWeek]<>5,
+    DateTbl[DayOfWeek]<>6))
+RETURN SUMX(Weekdays,[TotalSales])
+
+TotalSales =
+SUMX(OrdersTbl,OrdersTbl[Amount]*OrdersTbl[SellingPrice])
+
+Clustered Column chart two  
+Measures:
+
+TotalSalesOnWeekends = 
+VAR Weekends =
+FILTER(DateTbl,
+OR(DateTbl[DayOfWeek]=5,
+   DateTbl[DayOfWeek]=6))
+RETURN SUMX(Weekends,[TotalSales])    
+
+TotalSales =
+SUMX(OrdersTbl,OrdersTbl[Amount]*OrdersTbl[SellingPrice])
+
+Clustered Column chart three  
+Measures:
+
+TotalSales =
+SUMX(OrdersTbl,OrdersTbl[Amount]*OrdersTbl[SellingPrice])
+
+TotalSalesOnWeekdays = 
+VAR Weekdays =
+FILTER(DateTbl,
+AND(DateTbl[DayOfWeek]<>5,
+    DateTbl[DayOfWeek]<>6))
+RETURN SUMX(Weekdays,[TotalSales])    
+
+TotalSalesOnWeekends = 
+VAR Weekends =
+FILTER(DateTbl,
+OR(DateTbl[DayOfWeek]=5,
+   DateTbl[DayOfWeek]=6))
+RETURN SUMX(Weekends,[TotalSales])    
+
+WeekendsCheck = [TotalSales]-[TotalSalesOnWeekdays]
+
+Table chart 
+Measures:
+ 
+TotalSales =
+SUMX(OrdersTbl,OrdersTbl[Amount]*OrdersTbl[SellingPrice])
+
+TotalSalesOnWeekdays = 
+VAR Weekdays =
+FILTER(DateTbl,
+AND(DateTbl[DayOfWeek]<>5,
+    DateTbl[DayOfWeek]<>6))
+RETURN SUMX(Weekdays,[TotalSales])    
+
+TotalSalesOnWeekends = 
+VAR Weekends =
+FILTER(DateTbl,
+OR(DateTbl[DayOfWeek]=5,
+   DateTbl[DayOfWeek]=6))
+RETURN SUMX(Weekends,[TotalSales])    
+
+WeekendsCheck =
+[TotalSales]-[TotalSalesOnWeekdays]
+
+
+
+--------------------------------------------------------------------------------------------------
+Page_5:
+Bookmarks
+
+Decomposition tree chart 
+Order table (Region, Category, CustomerCompany, CustomerCountry)
+Measures:
+
+TotalSales =
+SUMX(Ordertbl,Ordertbl[SellingPrice]*Ordertbl[Amount])
+
+Clustered bar Chart Order table (CustomerCountry)
+Measures:
+
+TotalSales =
+SUMX(Ordertbl,Ordertbl[SellingPrice]*Ordertbl[Amount])
+
+
+
+--------------------------------------------------------------------------------------------------
+Page_6:
+Detail Page
+
+Card Chart  (Belgium)
+Measures:
+
+SelectedCountry = 
+SELECTEDVALUE(Ordertbl[CustomerCountry],"Please choose one Country")
+
+
+Donut  chart _ Order table (Category)
+Measures:
+
+TotalProfit =
+[TotalSales]-[TotalCost]
+
+Funnel Chart
+Measures:
+
+TotalSales =
+SUMX(Ordertbl,Ordertbl[SellingPrice]*Ordertbl[Amount])
+
+TotalCost =
+SUMX(Ordertbl,Ordertbl[PurchasingPrice]*Ordertbl[Amount])
+
+TotalProfit =
+[TotalSales]-[TotalCost]
+
+Multi-row Card Chart
+Measures:
+
+TotalSales =
+SUMX(Ordertbl,Ordertbl[SellingPrice]*Ordertbl[Amount])
+
+TotalProfit =
+[TotalSales]-[TotalCost]
+
+TotalCost =
+SUMX(Ordertbl,Ordertbl[PurchasingPrice]*Ordertbl[Amount])
+
+Clustered Column chart  Date table(Date)
+Measures:
+
+MovingAverageProfit = 
+AVERAGEX(DATESINPERIOD(Datestbl[Date],
+LASTDATE(Datestbl[Date]),-30,DAY),
+[TotalProfit])
+
+
+--------------------------------------------------------------------------------------------------
+Page_7:
+Final Report
+
+Mixe of Card and Donuts Charts
+Order table (Category)
+Measures:
+
+TotalSales =
+SUMX(OrdersTbl,OrdersTbl[Amount]*OrdersTbl[SellingPrice])
+
+Multi-row Card Chart
+Measures:
+
+TotalSales =
+SUMX(OrdersTbl,OrdersTbl[Amount]*OrdersTbl[SellingPrice])
+TotalCost =
+SUMX(OrdersTbl,OrdersTbl[Amount]*OrdersTbl[PurchasingPrice])
+TotalProfit =
+[TotalSales]-[TotalCost]
+ProfitMargin =
+DIVIDE([TotalProfit],[TotalSales])
+
+Smart Narrative Chart
+
+Map Chart   Order table (CustomerCountry)
+Measures:
+
+TotalSales =
+SUMX(OrdersTbl,OrdersTbl[Amount]*OrdersTbl[SellingPrice])
+
+Waterfall Chart  Order table (CustomerCountry)
+Measures:
+
+TotalProfit =
+[TotalSales]-[TotalCost]
+
+100 % Stacked Column Chart 
+Order table (Region)
+Customer Classification (Top 1-5, AVG 6-20, Bad 21-10000)
+Measures:
+
+ClassifyCustomers = 
+CALCULATE([TotalSales],
+FILTER(VALUES(OrdersTbl[CustomerCompany]),
+COUNTROWS(FILTER(CustomerClassificationTbl,
+RANKX(ALL(OrdersTbl[CustomerCompany]),
+[TotalSales],,DESC)
+>= CustomerClassificationTbl[Min Val] &&
+RANKX(ALL(OrdersTbl[CustomerCompany]),
+[TotalSales],,DESC)
+<=CustomerClassificationTbl[Max Val]))
+>0))
+
+
+
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
+
+
+
+
+
