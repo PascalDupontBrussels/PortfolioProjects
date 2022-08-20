@@ -33,7 +33,7 @@ SellingPriceperTransaction = SellingPricePerItem * NumberOfItemPurchased
 #Costpertransaction Column calculation
 #CostPertransaction = CostPeritem * NumberofitemsPurchases
 #variable = dataframe['column_name] 
-CostPerItem = data['CostPerItem']
+CostPerItem = data['CostPerItem'] 
 NumberOfItemsPurchased = data['NumberOfItemsPurchased']
 CostPerTransaction = NumberOfItemsPurchased * CostPerItem
 
