@@ -1,6 +1,6 @@
 
 /*
-The Data base was taken from this site:
+The Data can be downloaded from  the link below:
 https://ourworldindata.org/covid-deaths
 
 Covid 19 Data Exploration 
